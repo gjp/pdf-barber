@@ -1,0 +1,20 @@
+## Requires poppler
+
+# Dump bounding all bounding box info
+pdfinfo -box -f 1 -l 9999 foo.pdf
+
+# Render subset of pages to grayscale PNG at 72 DPI
+pdftoppm -gray -aa no -r 72 -f 40 -l 100 -png foo.pdf foo
+
+
+## Requires imagemagick
+
+# Experimental composition and fill commands
+
+convert foo.png -threshold 2 -blur 4 -fuzz 50% -fill red -floodfill +300+300 black out.png
+
+convert foo-*.png -average -fuzz 50% -fill red -floodfill +300+300 lightgray out.png
+ 
+convert foo-*.png -fill white -colorize 75% -compose multiply -flatten -blur 1 -normalize -fuzz 50% -fill red -floodfill +300+300 gray out.png
+
+
