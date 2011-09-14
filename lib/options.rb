@@ -6,7 +6,7 @@ module Options
       opts.banner = "Usage: #{$PROGRAM_NAME} [options] FILE"
 
       opts.on("-r", "--range RANGE", "Page range separated by a hyphen, e.g. 2-51") do |r|
-        @options[:range] = r
+        @options[:range] = r.split('-').map(&:to_i)
       end
 
       opts.on("-m", "--method METHOD", "Composition method") do |m|
