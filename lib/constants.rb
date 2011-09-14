@@ -2,12 +2,6 @@
 # multiple composition methods will allow for some flexibility in determining
 # the bounding box
 COMPOSITIONS = {
-  :default  => ['-compose multiply -flatten -blur 4 -normalize -fuzz 50% -fill red',
-                'gray'],
-
-  :average  => ['-average -fuzz 50% -fill red',
-                'lightgray'],
-
-  :colorize => ['-fill white -colorize 75% -compose multiply -flatten -blur 1 -normalize -fuzz 50%',
-                'gray']
+  :default  => {method: '-compose multiply -flatten -blur 4 -normalize', color: 'gray'},
+  :average  => {method: '-average', color: 'lightgray'},
 }
