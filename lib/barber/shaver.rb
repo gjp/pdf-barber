@@ -9,7 +9,7 @@
 #   to gather box info from the file and to render pages
 # - convert and indentify, available as components of ImageMagick,
 #   to manipulate the rendered pages as raster images
-# - pdfedit, to write the new CropBox into the output file
+# - gs (GhostScript), to write the new CropBox into the output file
 
 module Barber
   require 'tmpdir'
@@ -45,6 +45,7 @@ module Barber
       flood(render_center)
       geometry = crop_render
       calc_cropbox(geometry)
+      write_cropped_pdf
     end
 
     def process_params
@@ -170,13 +171,21 @@ module Barber
       t = (offset_y * scale_height).round
       r = ((offset_x + new_width) * scale_width).round
       b = ((offset_y + new_height) * scale_height).round
+      @cropbox = [l,t,r,b]
       puts "New CropBox: #{l} #{t} #{r} #{b}"
     end
 
     def write_cropped_pdf
-      # Most likely a pdfedit script.
+      puts "Writing cropped PDF..."
+
+      output_filename = 'cropped_' + File.basename(@filename)
+
+      run ("gs"\
+           " -sDEVICE=pdfwrite" \
+           " -o #{output_filename}"\
+           " -c \"[/CropBox [#{@cropbox.join(' ')}] /PAGES pdfmark\""\
+           " -f #{@filename}" )
     end
 
   end
 end
-
