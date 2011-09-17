@@ -39,12 +39,12 @@ module Barber
  private
 
     def shave
-      render
-      get_render_size
-      calc_center
+      render_size = render
+      render_center = calc_center(render_size)
       compose
-      flood
-      crop
+      flood(render_center)
+      geometry = crop_render
+      calc_cropbox(geometry)
     end
 
     def process_params
@@ -108,6 +108,9 @@ module Barber
            " -f #{@start_page}"\
            " -l #{@end_page}"\
            " #{@filename} #{@tmpdir}/page")
+
+      a_page_name = Dir.entries(@tmpdir).grep(/page/).first
+      image_dimensions( "#{@tmpdir}/#{a_page_name}" )
     end
 
     def image_dimensions(name)
@@ -115,25 +118,12 @@ module Barber
       matches_to_i( id, /PNG ([\d\.]+)x([\d\.]+)/ )
     end
 
-    def get_render_size
-      # pdftoppm varies the names of the output files depending not on the pages extracted,
-      # but on the total number of pages in the document, so we have to know this in order
-      # to figure out the name of the first page
-      # FIXME: alternate implementation - just grab the first file in the tmpdir?
-
-      format_string = "%0#{@pages[0].to_s.size}d"
-      first_image = "page-#{format_string % @start_page}.png"
-      @render_size = image_dimensions( "#{@tmpdir}/#{first_image}" )
+    def calc_scale(*render_size)
+      [ render_size[0].to_f / @page_size[0], render_size[1].to_f / @page_size[1] ]
     end
 
-    def calc_scale
-      @scale_x = @render_size[0].to_f / @page_size[0]
-      @scale_y = @render_size[1].to_f / @page_size[1]
-    end
-
-    def calc_center
-      @center_x = @render_size[0] / 2
-      @center_y = @render_size[1] / 2
+    def calc_center(render_size)
+      [ render_size[0] / 2, render_size[1] / 2 ]
     end
 
     def compose
@@ -145,36 +135,42 @@ module Barber
           " #{@tmpdir}/composed.png" )
     end
 
-    def flood
+    def flood(render_center)
       # Create a copy of the composed image floodfilled from the center
 
       run("convert #{@tmpdir}/composed.png"\
           " -fuzz 50%"\
           " -fill red"\
-          " -floodfill +#{@center_x}+#{@center_y}"\
-      " #{@composition[:color]}"\
-        " #{@tmpdir}/filled.png" )
+          " -floodfill +#{render_center[0]}+#{render_center[1]}"\
+          " #{@composition[:color]}"\
+          " #{@tmpdir}/filled.png" )
     end
 
-    def crop
-      # Create an image which contains only the changes between the composed and
-      # filled images
-      # This is a proof-of-concept - we need the x,y offsets as well as the cropped
-      # size unless the crop is centered. This can be done by marking the
-      # non-floodfilled area as transparent, but I haven't completed that part yet.
+    def crop_render
+      # Remove all non-floodfilled pixels and ask what the new image size
+      # and offset would be if we were to trim the edges
 
-      run("convert #{@tmpdir}/composed.png"\
-          " #{@tmpdir}/filled.png"\
-          " -deconstruct"\
-          " cropped.png" )
-
-      @crop_size = image_dimensions('cropped-1.png')
-      puts "Render size is #{@render_size}, crop size is #{@crop_size}"
+      geometry_str =
+        run("convert #{@tmpdir}/filled.png"\
+            " -fill none"\
+            " +opaque red"\
+            " -trim"\
+            " -format '%W %H %X %Y %w %h' info:-" )
+     
+      @geometry = geometry_str.chomp.split.map(&:to_i)
     end
 
-    def calc_cropbox
+    def calc_cropbox(geometry)
       # Use the render size, cropped size, offsets, and PDF box sizes to calculate the new
       # CropBox. This part is just arithmetic.
+      orig_width, orig_height, offset_x, offset_y, new_width, new_height = *geometry
+      scale_width, scale_height = calc_scale(orig_width, orig_height) 
+      puts "Original page size: #{@page_size}"
+      l = (offset_x * scale_width).round
+      t = (offset_y * scale_height).round
+      r = ((offset_x + new_width) * scale_width).round
+      b = ((offset_y + new_height) * scale_height).round
+      puts "New CropBox: #{l} #{t} #{r} #{b}"
     end
 
     def write_cropped_pdf

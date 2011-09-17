@@ -1,8 +1,13 @@
 module Barber
+  class BarberError < RuntimeError; end
+
   class Application
     def self.run(argv)
       params = get_params(argv)
       Shaver.new(params).start
+
+    rescue BarberError => e
+      puts "\nBarberError: #{e.message}"
     end
 
     def self.get_params(argv)
