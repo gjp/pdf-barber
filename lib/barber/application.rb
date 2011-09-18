@@ -25,7 +25,7 @@ module Barber
         end
 
         parser.on("-d", "--dir DIR", "Temporary directory (keeps working files)") do |d|
-          params[:dir] = d
+          params[:tmpdir] = d
         end
 
         parser.on("-v", "--verbose", "Run verbosely") do |v|
