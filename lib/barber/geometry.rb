@@ -1,6 +1,6 @@
 module Barber
   class Geometry
-    attr_accessor :pagesize, :mediabox, :cropbox, :rendersize
+    attr_accessor :pages, :pagesize, :mediabox, :cropbox, :rendersize
     attr_reader   :newbox, :translate, :rectclip
 
     def initialize
@@ -11,6 +11,7 @@ module Barber
       @newbox = []
       @rectclip = []
       @translate = []
+      @pages = 0
     end
 
     def calc_newbox(render_geometry)
@@ -32,7 +33,8 @@ module Barber
 
       @newbox = [l, b, r, t]
       @translate = [l, b]
-      @rectclip = [0, 0, (crop_width * scale_width).round, (crop_height * scale_height).round ]
+      @rectclip = [0, 0, (crop_width * scale_width).round,
+                         (crop_height * scale_height).round ]
     end
 
     def newbox_s
