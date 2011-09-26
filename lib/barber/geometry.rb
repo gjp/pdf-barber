@@ -1,5 +1,7 @@
 module Barber
   class Geometry
+    include Helpers
+
     attr_accessor :pages, :pagesize, :mediabox, :cropbox, :rendersize
     attr_reader   :newbox, :translate, :rectclip
 
@@ -15,11 +17,11 @@ module Barber
     end
 
     def calc_newbox(render_geometry)
-      # Use the render size, cropped size, offsets, and PDF box sizes to calculate
-      # the new CropBox. This part is just arithmetic.
+      # Use the render size, cropped size, offsets, and PDF box sizes to
+      # calculate the new CropBox. This part is just arithmetic.
 
-      render_width, render_height, offset_left, offset_top, crop_width, crop_height =
-        *render_geometry
+      render_width, render_height, offset_left,
+      offset_top, crop_width, crop_height = *render_geometry
 
       scale_width = media_width.to_f / render_width.to_f
       scale_height = media_height.to_f / render_height.to_f
@@ -78,15 +80,19 @@ module Barber
     end
 
     def puts_original_boxes
-      puts "Page size: #{@pagesize} MediaBox: #{@mediabox} CropBox: #{@cropbox}"
+      feedback(
+        "Page size: #{@pagesize} MediaBox: #{@mediabox} CropBox: #{@cropbox}"
+      )
     end 
 
     def puts_new_boxes
-      puts "NewBox: #{@newbox} Translate: #{@translate} Rectclip: #{@rectclip}"
+      feedback(
+        "New CropBox: #{@newbox} Translate: #{@translate} Size: #{@rectclip}"
+      )
     end 
 
     def puts_rendersize
-      puts "Rendersize: #{@rendersize}"
+      feedback( "Render size: #{@rendersize}" )
     end
   end
 end

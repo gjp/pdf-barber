@@ -1,10 +1,11 @@
 require 'optparse'
 require 'tmpdir'
+require 'tempfile'
 
 require_relative 'barber/application'
+require_relative 'barber/helpers'
 require_relative 'barber/geometry'
 require_relative 'barber/shaver'
 require_relative 'barber/reader'
-require_relative 'barber/writer'
 require_relative 'barber/renderer'
-require_relative 'barber/utils'
+require_relative 'barber/writer'

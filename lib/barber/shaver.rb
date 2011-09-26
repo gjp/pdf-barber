@@ -12,38 +12,33 @@
 # - gs (GhostScript), to write the new CropBox into the output file
 
 module Barber
-  #include Runner
-
   class Shaver
-    def initialize(params)
-      @params = params
-    end
+    include Helpers
 
-    def start
-      if @params[:tmpdir]
-        shave(@params)
+    def self.shave(params)
+      if params[:tmpdir]
+        new.run(params)
       else
         Dir.mktmpdir do |dir|
-          @params[:tmpdir] = dir
-          shave(@params)
+          params[:tmpdir] = dir
+          new.run(params)
         end
       end
     end
 
- private
-
-    def shave(params)
-      reader = Reader.new(params)
-      geometry = reader.read
+    def run(params)
+      geometry = Reader.new( params ).read
       geometry.puts_original_boxes
 
-      renderer = Renderer.new(geometry, params)
+      check_page_range( geometry.pages, params[:range] )
+
+      renderer = Renderer.new( geometry, params )
       renderer.render
 
-      geometry.calc_newbox(renderer.find_crop_geometry)
+      geometry.calc_newbox( renderer.find_crop_geometry )
       geometry.puts_new_boxes
 
-      Writer.new(geometry, params).write
+      Writer.new( geometry, params ).write
     end
   end
 end
