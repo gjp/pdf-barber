@@ -11,10 +11,10 @@ module Barber
       g = Geometry.new
 
       pdfinfo = system_command(
-        "pdfinfo -box #{@params[:filename]}", @params
+        "pdfinfo -box -f #{@params[:range][0]} #{@params[:filename]}", @params
       )
 
-      num_re = '\s+([\d\.]+)'
+      num_re = '\s+([\d\.\-]+)'
 
       g.pages    = matches_to_i( pdfinfo, /Pages:#{num_re}/ )[0]
       g.pagesize = matches_to_i( pdfinfo, /Page size:#{num_re} x#{num_re}/ )
