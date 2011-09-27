@@ -38,7 +38,7 @@ module Barber
       geometry.calc_newbox( renderer.find_crop_geometry )
       geometry.puts_new_boxes
 
-      Writer.new( geometry, params ).write
+      Writer.new( geometry, params ).write unless params[:dryrun]
     end
   end
 end

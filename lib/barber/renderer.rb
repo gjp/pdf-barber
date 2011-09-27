@@ -2,7 +2,7 @@ module Barber
   class Renderer
     include Helpers
 
-   def initialize(geometry, params)
+    def initialize(geometry, params)
       @params = params
       @geometry = geometry
       @tmpdir = params[:tmpdir]
@@ -47,7 +47,7 @@ module Barber
 
     def compose
       # Compose the PNG files generated earlier into a single image
- 
+
       system_command(
         "convert"\
         " #{@tmpdir}/barber-page*"\
@@ -70,8 +70,8 @@ module Barber
         " -floodfill"\
         " +#{@geometry.render_center_x}+#{@geometry.render_center_y}"\
         " gray"\
-        " #{@tmpdir}/filled.png",
-        @params
+          " #{@tmpdir}/filled.png",
+          @params
       )
     end
 
@@ -87,9 +87,9 @@ module Barber
           " -trim"\
           " -format '%W %H %X %Y %w %h' info:-",
           @params
-        )
-     
-       geometry_str.chomp.split.map(&:to_i)
+      )
+
+      geometry_str.chomp.split.map(&:to_i)
     end
   end
 end

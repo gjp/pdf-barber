@@ -20,9 +20,14 @@ module Barber
           params[:range] = r.split('-').map(&:to_i)
         end
 
-        parser.on("-d", "--dir DIR",
-                  "Temporary directory (keep working files)") do |d|
-          params[:tmpdir] = d
+        parser.on("-t", "--tmpdir DIR",
+                  "Temporary directory (keep working files)") do |t|
+          params[:tmpdir] = t
+        end
+
+        parser.on("-d", "--dryrun",
+                  "Calculate the CropBox but don't write output") do |d|
+          params[:dryrun] = d
         end
 
         parser.on("-v", "--verbose",
@@ -33,7 +38,6 @@ module Barber
       end.parse(argv)
 
       params[:filename] = remaining_argv[0]
-
       params
     end
 

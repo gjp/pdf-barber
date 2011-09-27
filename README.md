@@ -17,7 +17,7 @@ It's up to you to visually scan the document beforehand to find a good range of 
 
 ## Sample runs
 
-Normal
+Normal run
 
 ```
 pdf-barber$ ruby bin/barber.rb --range 1-8 pdfs/bookie-basic-feature.pdf 
@@ -45,6 +45,10 @@ New CropBox: [160, 320, 450, 722] Translate: [160, 320] Size: [0, 0, 290, 402]
 Writing PDF with new CropBox to cropped_A_Tale_of_Two_Cities_NT.pdf...
 Running: gs -sDEVICE=pdfwrite -o cropped_A_Tale_of_Two_Cities_NT.pdf -c "[/CropBox [160 320 450 722] /PAGES pdfmark"  -f /tmp/d20110926-8711-eofvnb/barber20110926-8711-15vg8np
 ```
+Other options:
+
+`--dryrun` will display the calculated CropBox without writing a new file
+`--tmpdir DIR` will render the working files to the specified directory and retain them, so you can see what the renderer is doing. WARNING: Using the same tmpdir for multiple runs will cause odd behavior.
 
 ## What else do I need?
 
