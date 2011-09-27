@@ -2,17 +2,7 @@ module Barber
   class Renderer
     include Helpers
 
-    # The default composition method works well, but other methods may work
-    # better for other types of content.
-
-    COMPOSITIONS = {
-      :default  => {method: '-compose multiply -flatten -blur 4 -normalize',
-                    color: 'gray'},
-      :average  => {method: '-average',
-                    color: 'lightgray'},
-    }
-
-    def initialize(geometry, params)
+   def initialize(geometry, params)
       @params = params
       @geometry = geometry
       @tmpdir = params[:tmpdir]
@@ -22,11 +12,8 @@ module Barber
       @geometry.rendersize = render_pages(@params[:filename], @params[:range])
       @geometry.puts_rendersize
 
-      composition =
-        COMPOSITIONS[@params[:composition]] || COMPOSITIONS[:default]
-
-      compose(composition[:method])
-      flood(composition[:color])
+      compose
+      flood
     end
 
     def render_pages(filename, page_range)
@@ -58,19 +45,22 @@ module Barber
       matches_to_i( id, /PNG ([\d\.]+)x([\d\.]+)/ )
     end
 
-    def compose(composition_method)
+    def compose
       # Compose the PNG files generated earlier into a single image
-      
+ 
       system_command(
         "convert"\
         " #{@tmpdir}/barber-page*"\
-        " #{composition_method}"\
+        " -compose multiply"\
+        " -flatten"\
+        " -blur 4"\
+        " -normalize"\
         " #{@tmpdir}/composed.png",
         @params
       )
     end
 
-    def flood(composition_color)
+    def flood
       # Create a copy of the composed image floodfilled from the center
 
       system_command(
@@ -79,7 +69,7 @@ module Barber
         " -fill red"\
         " -floodfill"\
         " +#{@geometry.render_center_x}+#{@geometry.render_center_y}"\
-        " #{composition_color}"\
+        " gray"\
         " #{@tmpdir}/filled.png",
         @params
       )

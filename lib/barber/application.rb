@@ -20,11 +20,6 @@ module Barber
           params[:range] = r.split('-').map(&:to_i)
         end
 
-        parser.on("-m", "--method METHOD",
-                  "Composition method") do |m|
-          params[:method] = m
-        end
-
         parser.on("-d", "--dir DIR",
                   "Temporary directory (keep working files)") do |d|
           params[:tmpdir] = d
