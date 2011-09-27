@@ -13,7 +13,7 @@ Barber renders a range of pages as very low resolution raster images and then co
 
 The composed image is then floodfilled from the center, and the non-floodfilled pixels are removed. The size of the remaining image is then compared to the original. The size adjustment and offset is scaled to match that of the original document. Finally, a new PDF is written with the CropBox set to the new values.
 
-It's up to you to visually scan the document beforehand to find a good range of pages to use as a basis for the _required --range parameter_. It's best to skip titles, tables of contents, and pages which contain content which runs into the margins, such as large images or horizontal rules. A range of about ten pages will usually provide good results.
+It's up to you to visually scan the document beforehand to find a good range of pages to use as a basis for the *required --range parameter*. It's best to skip titles, tables of contents, and pages which contain content which runs into the margins, such as large images or horizontal rules. A range of about ten pages will usually provide good results.
 
 ## Sample runs
 
@@ -47,7 +47,8 @@ Running: gs -sDEVICE=pdfwrite -o cropped_A_Tale_of_Two_Cities_NT.pdf -c "[/CropB
 ```
 Other options:
 
-`--dryrun` will display the calculated CropBox without writing a new file
+`--dryrun` will display the calculated CropBox without writing a new file.
+
 `--tmpdir DIR` will render the working files to the specified directory and retain them, so you can see what the renderer is doing. WARNING: Using the same tmpdir for multiple runs will cause odd behavior.
 
 ## What else do I need?
