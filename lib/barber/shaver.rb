@@ -28,15 +28,13 @@ module Barber
 
     def run(params)
       geometry = Reader.new( params ).read
-      geometry.puts_original_boxes
-
-      check_page_range( geometry.pages, params[:range] )
+      geometry.show_original_boxes
 
       renderer = Renderer.new( geometry, params )
       renderer.render
 
       geometry.calc_newbox( renderer.find_crop_geometry )
-      geometry.puts_new_boxes
+      geometry.show_new_boxes
 
       Writer.new( geometry, params ).write unless params[:dryrun]
     end

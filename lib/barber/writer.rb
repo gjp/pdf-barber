@@ -19,7 +19,7 @@ module Barber
           pdfdata = f.read
           pdfdata.gsub!(/(\/CropBox\[[^\[]+\])/) { |s| ' ' * s.size }
           tf.write(pdfdata)
-          write_new_cropbox(tf.path)
+          write_new_cropbox_per_page(tf.path)
         end
       end
     end
@@ -37,6 +37,36 @@ module Barber
         " -f #{filename}",
         @options
       )
+    end
+
+    def write_new_cropbox_per_page(filename)
+      gscommand = <<-EOF
+        File dup (r) file runpdfbegin
+        1 1 pdfpagecount {
+          pdfgetpage
+          mark /CropBox [#{@geometry.newbox_s}] /PAGE pdfmark
+          pdfshowpage
+        } for
+      EOF
+
+      feedback(
+        "Writing PDF with new per-page CropBox to #{@output_filename}..."
+      )
+
+      Tempfile.open('gscommand') do |f|
+        f.puts(gscommand)
+        f.flush
+
+        system_command(
+          "gs"\
+          " -sDEVICE=pdfwrite"\
+          " -dBATCH -q"\
+          " -o #{@output_filename}"\
+          " -sFile=#{filename}"\
+          " #{f.path}",
+          @options
+        )
+      end
     end
   end
 end

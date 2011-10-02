@@ -1,0 +1,39 @@
+% Minimal *working* version of an older non-working pdf_info.ps shipped with GS
+% Gregory Parkhurst
+
+() =
+File dup (r) file runpdfbegin
+/PDFPageCount pdfpagecount def
+print ( has ) print PDFPageCount =print ( pages.) =
+flush
+
+% Expects the box params on the stack in reverse order
+/PrintBox {
+  ([ ) print
+  4 -1 roll =print
+  ( ) print 
+  3 -1 roll =print
+  ( ) print
+  exch =print
+  ( ) print
+  =print
+  ( ]) print
+} def 
+
+() =
+% Display the MediaBox and CropBox per page, if they exist.
+  1 1 PDFPageCount {
+    dup (Page ) print =print 
+    pdfgetpage dup
+    /MediaBox pget {
+      aload pop
+      ( MediaBox: ) print PrintBox
+    } if
+    /CropBox pget {
+      aload pop
+      ( CropBox: ) print PrintBox 
+    } if
+    () = flush
+  } for
+
+quit

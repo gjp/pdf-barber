@@ -10,7 +10,7 @@ module Barber
 
     def render
       @geometry.rendersize = render_pages(@params[:filename], @params[:range])
-      @geometry.puts_rendersize
+      @geometry.show_rendersize
 
       compose
       flood

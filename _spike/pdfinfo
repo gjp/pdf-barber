@@ -1,0 +1,6 @@
+gs \
+  -dNODISPLAY \
+  -dNOPAUSE \
+  -q \
+  -sFile=tt.pdf \
+  pdf_info.ps

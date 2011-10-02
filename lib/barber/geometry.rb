@@ -79,19 +79,19 @@ module Barber
       @rendersize[1] / 2
     end
 
-    def puts_original_boxes
+    def show_original_boxes
       feedback(
         "Page size: #{@pagesize} MediaBox: #{@mediabox} CropBox: #{@cropbox}"
       )
     end 
 
-    def puts_new_boxes
+    def show_new_boxes
       feedback(
         "New CropBox: #{@newbox} Translate: #{@translate} Size: #{@rectclip}"
       )
     end 
 
-    def puts_rendersize
+    def show_rendersize
       feedback( "Render size: #{@rendersize}" )
     end
   end
