@@ -3,7 +3,7 @@ module Barber
     include Helpers 
 
     def initialize(geometries, options)
-      @odd_geometry = geometries.first
+      @odd_geometry = geometries[0]
       @even_geometry = (geometries.size > 1 ? geometries[1] : geometries[0])
       @options = options
       @filename = options[:filename]
