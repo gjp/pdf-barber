@@ -2,21 +2,16 @@ module Barber
   class Geometry
     include Helpers
 
-    attr_accessor :pages, :pagesize, :mediabox, :cropbox, :rendersize
-    attr_reader   :newbox, :translate, :rectclip
+    attr_accessor :render_dimensions
+    attr_reader   :mediabox, :cropbox, :pagesize, :pages
 
-    def initialize
-      @pagesize = []
-      @mediabox = []
-      @cropbox = []
-      @rendersize = []
-      @newbox = []
-      @rectclip = []
-      @translate = []
-      @pages = 0
+    def initialize(mediabox, pages = 'all')
+      @mediabox = mediabox
+      @pages = pages
+      @render_dimensions = []
     end
 
-    def calc_newbox(render_geometry)
+    def calc_cropbox(render_geometry)
       # Use the render size, cropped size, offsets, and PDF box sizes to
       # calculate the new CropBox. This part is just arithmetic.
 
@@ -33,22 +28,16 @@ module Barber
       r = ((crop_width + offset_left) * scale_width).round
       t = ((render_height - offset_top) * scale_height).round
 
-      @newbox = [l, b, r, t]
-      @translate = [l, b]
-      @rectclip = [0, 0, (crop_width * scale_width).round,
-                         (crop_height * scale_height).round ]
+      @cropbox = [l, b, r, t]
+      @pagesize = [ (crop_width * scale_width).round, (crop_height * scale_height).round ]
     end
 
-    def newbox_s
-      @newbox.join(' ')
+    def cropbox_s
+      @cropbox.join(' ')
     end
 
-    def rectclip_s
-      @rectclip.join(' ')
-    end
-
-    def translate_s
-      @translate.join(' ')
+    def pagesize_s
+      @pagesize.join(' ')
     end
 
     def new_pagesize
@@ -64,35 +53,26 @@ module Barber
     end
 
     def render_width
-      @rendersize[0]
+      @render_dimensions[0]
     end
 
     def render_height
-      @rendersize[1]
+      @render_dimensions[1]
     end
 
     def render_center_x
-      @rendersize[0] / 2
+      @render_dimensions[0] / 2
     end
 
     def render_center_y
-      @rendersize[1] / 2
+      @render_dimensions[1] / 2
     end
-
-    def show_original_boxes
-      feedback(
-        "Page size: #{@pagesize} MediaBox: #{@mediabox} CropBox: #{@cropbox}"
-      )
-    end 
 
     def show_new_boxes
       feedback(
-        "New CropBox: #{@newbox} Translate: #{@translate} Size: #{@rectclip}"
+        "New CropBox for #{@pages} pages: #{@cropbox} Page Size: #{@pagesize}"
       )
     end 
 
-    def show_rendersize
-      feedback( "Render size: #{@rendersize}" )
-    end
   end
 end

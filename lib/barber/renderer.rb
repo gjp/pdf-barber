@@ -2,42 +2,39 @@ module Barber
   class Renderer
     include Helpers
 
-    def initialize(geometry, params)
+    attr_reader :dimensions
+
+    def initialize(params)
       @params = params
-      @geometry = geometry
-      @tmpdir = params[:tmpdir]
     end
 
     def render
-      @geometry.rendersize = render_pages(@params[:filename], @params[:range])
-      @geometry.show_rendersize
-
-      compose
-      flood
+      @dimensions = render_pages
+      self
     end
 
-    def render_pages(filename, page_range)
+    private
+
+    def render_pages
       # Render a range of pages as low-resolution grayscale PNG files
       # Give some feedback; this can take time if the page range is large
 
-      start_page, end_page = *page_range
+      start_page, end_page = *@params[:range]
       feedback("Rendering pages #{start_page} to #{end_page}...")
 
       system_command(
-        "pdftoppm"\
-        " -gray"\
-        " -aa no"\
-        " -aaVector no"\
-        " -png"\
-        " -r 36"\
-        " -f #{start_page}"\
-        " -l #{end_page}"\
-        " #{filename} #{@tmpdir}/barber-page",
+        "gs"\
+        " -sDEVICE=pnggray"\
+        " -r36x36"\
+        " -dFirstPage=#{start_page}"\
+        " -dLastPage=#{end_page}"\
+        " -o #{@params[:tmpdir]}/page_%04d.png"\
+        " #{@params[:filename]}",
         @params
       )
 
-      a_page_name = Dir.entries(@tmpdir).grep(/barber-page/).first
-      image_dimensions( "#{@tmpdir}/#{a_page_name}" )
+      first_page_name = "page_%04d.png" % start_page
+      image_dimensions( "#{@params[:tmpdir]}/#{first_page_name}" )
     end
 
     def image_dimensions(name)
@@ -45,51 +42,9 @@ module Barber
       matches_to_i( id, /PNG ([\d\.]+)x([\d\.]+)/ )
     end
 
-    def compose
-      # Compose the PNG files generated earlier into a single image
-
-      system_command(
-        "convert"\
-        " #{@tmpdir}/barber-page*"\
-        " -compose multiply"\
-        " -flatten"\
-        " -blur 4"\
-        " -normalize"\
-        " #{@tmpdir}/composed.png",
-        @params
-      )
+    def show_dimensions
+      feedback( "Render dimensions: #{dimensions}" )
     end
 
-    def flood
-      # Create a copy of the composed image floodfilled from the center
-
-      system_command(
-        "convert #{@tmpdir}/composed.png"\
-        " -fuzz 50%"\
-        " -fill red"\
-        " -floodfill"\
-        " +#{@geometry.render_center_x}+#{@geometry.render_center_y}"\
-        " gray"\
-          " #{@tmpdir}/filled.png",
-          @params
-      )
-    end
-
-    def find_crop_geometry
-      # Remove all non-floodfilled pixels and find what the new image size
-      # and offset would be if we were to trim the edges
-
-      geometry_str =
-        system_command(
-          "convert #{@tmpdir}/filled.png"\
-          " -fill none"\
-          " +opaque red"\
-          " -trim"\
-          " -format '%W %H %X %Y %w %h' info:-",
-          @params
-      )
-
-      geometry_str.chomp.split.map(&:to_i)
-    end
   end
 end

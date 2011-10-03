@@ -1,6 +1,0 @@
-gs \
-  -o barber_page_%03d.png \
-  -sDEVICE=pnggray \
-  -r36x36 \
-  -dFirstPage=4 -dLastPage=8 \
-   bb.pdf

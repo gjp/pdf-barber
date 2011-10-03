@@ -20,6 +20,11 @@ module Barber
           params[:range] = r.split('-').map(&:to_i)
         end
 
+        parser.on("-s", "--separate",
+                  "Separate even and odd pages during composition") do |s|
+          params[:separate] = s
+        end
+
         parser.on("-t", "--tmpdir DIR",
                   "Temporary directory (keep working files)") do |t|
           params[:tmpdir] = t

@@ -2,28 +2,42 @@ module Barber
   class Reader
     include Helpers
 
+    attr_reader :num_pages, :mediabox, :cropbox
+
     def initialize(params)
       @params = params
       check_filename(params[:filename])
     end
 
     def read
-      g = Geometry.new
-
-      pdfinfo = system_command(
-        "pdfinfo -box -f #{@params[:range][0]} #{@params[:filename]}", @params
+      pdf_info = system_command(
+        "gs"\
+        " -q"\
+        " -dNODISPLAY"\
+        " -dWhichPage=#{@params[:range][0]}"\
+        " -sFile=#{@params[:filename]}"\
+        " lib/barber/pdf_geometry.ps",
+        @params
       )
 
+      num_pages, mediabox, cropbox = pdf_info.split(',')
+
       num_re = '\s+([\d\.\-]+)'
+      @num_pages = matches_to_i( num_pages, /Pages:#{num_re}/ )[0]
+      @mediabox  = matches_to_i( mediabox, /MediaBox:#{num_re * 4}/ )
+      @cropbox   = matches_to_i( cropbox, /CropBox:#{num_re * 4}/ )
 
-      g.pages    = matches_to_i( pdfinfo, /Pages:#{num_re}/ )[0]
-      g.pagesize = matches_to_i( pdfinfo, /Page size:#{num_re} x#{num_re}/ )
-      g.mediabox = matches_to_i( pdfinfo, /MediaBox:#{num_re * 4}/ )
-      g.cropbox  = matches_to_i( pdfinfo, /CropBox:#{num_re * 4}/ )
-
-      check_page_range(g.pages, @params[:range])
-      g
+      check_page_range(@num_pages, @params[:range])
+      self
     end
+
+    def show_original_boxes
+      feedback(
+        "MediaBox: #{@mediabox} CropBox: #{@cropbox}"
+      )
+    end 
+
+    private
 
     def check_filename(filename)
       raise BarberError,

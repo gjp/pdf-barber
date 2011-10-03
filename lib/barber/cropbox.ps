@@ -1,0 +1,12 @@
+File (r) file runpdfbegin
+1 1 pdfpagecount {
+  dup 2 mod /odd exch def
+  pdfgetpage
+  mark /CropBox [
+    odd 1 eq
+    { OddBoxLLX OddBoxLLY OddBoxURX OddBoxURY }
+    { EvenBoxLLX EvenBoxLLY EvenBoxURX EvenBoxURY }
+    ifelse
+  ] /PAGE pdfmark
+  pdfshowpage
+} for

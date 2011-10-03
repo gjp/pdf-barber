@@ -5,11 +5,9 @@
 #
 # This utility relies on the following commands:
 #
-# - pdfinfo and pdftoppm, available either through xpdf or Poppler,
-#   to gather box info from the file and to render pages
-# - convert and indentify, available as components of ImageMagick,
+# - gs (GhostScript), to read and write PDF files
+# - convert and identify, available as components of ImageMagick,
 #   to manipulate the rendered pages as raster images
-# - gs (GhostScript), to write the new CropBox into the output file
 
 module Barber
   class Shaver
@@ -27,16 +25,27 @@ module Barber
     end
 
     def run(params)
-      geometry = Reader.new( params ).read
-      geometry.show_original_boxes
+      reader = Reader.new( params ).read
+      reader.show_original_boxes
 
-      renderer = Renderer.new( geometry, params )
-      renderer.render
+      geometries = []
 
-      geometry.calc_newbox( renderer.find_crop_geometry )
-      geometry.show_new_boxes
+      if params[:separate]
+        geometries << Geometry.new( reader.mediabox, 'odd')
+        geometries << Geometry.new( reader.mediabox, 'even')
+      else
+        geometries << Geometry.new( reader.mediabox, 'all')
+      end
 
-      Writer.new( geometry, params ).write unless params[:dryrun]
+      renderer = Renderer.new( params ).render
+
+      geometries.each do |g|
+        g.render_dimensions = renderer.dimensions
+        Composer.new( g, params ).compose
+        g.show_new_boxes
+      end
+
+      Writer.new( geometries, params ).write unless params[:dryrun]
     end
   end
 end

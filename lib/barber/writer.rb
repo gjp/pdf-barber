@@ -2,71 +2,53 @@ module Barber
   class Writer
     include Helpers 
 
-    def initialize(geometry, options)
-      @geometry = geometry
+    def initialize(geometries, options)
+      @odd_geometry = geometries.first
+      @even_geometry = (geometries.size > 1 ? geometries[1] : geometries[0])
       @options = options
       @filename = options[:filename]
       @output_filename = 'cropped_' + File.basename(@filename)
     end
 
     def write
-      clear_existing_cropboxes 
-    end
-
-    def clear_existing_cropboxes
       File.open(@filename, 'rb') do |f|
         Tempfile.open('barber', @options[:tmpdir]) do |tf|
           pdfdata = f.read
-          pdfdata.gsub!(/(\/CropBox\[[^\[]+\])/) { |s| ' ' * s.size }
-          tf.write(pdfdata)
-          write_new_cropbox_per_page(tf.path)
+          tf.write( clear_cropboxes(pdfdata) )
+          write_new_cropboxes(tf.path)
         end
       end
     end
 
-    def write_new_cropbox(filename)
+    private
+
+    def clear_cropboxes(pdfdata)
+      pdfdata.gsub(/(\/CropBox\[[^\[]+\])/) { |s| ' ' * s.size }
+    end
+
+    def write_new_cropboxes(filename)
       feedback(
         "Writing PDF with new CropBox to #{@output_filename}..."
       )
 
       system_command(
         "gs"\
-        " -sDEVICE=pdfwrite" \
+        " -q"\
+        " -sDEVICE=pdfwrite"\
+        " -sFile=#{filename}"\
+        " -dBATCH"\
+        " -dOddBoxLLX=#{@odd_geometry.cropbox[0]}"\
+        " -dOddBoxLLY=#{@odd_geometry.cropbox[1]}"\
+        " -dOddBoxURX=#{@odd_geometry.cropbox[2]}"\
+        " -dOddBoxURY=#{@odd_geometry.cropbox[3]}"\
+        " -dEvenBoxLLX=#{@even_geometry.cropbox[0]}"\
+        " -dEvenBoxLLY=#{@even_geometry.cropbox[1]}"\
+        " -dEvenBoxURX=#{@even_geometry.cropbox[2]}"\
+        " -dEvenBoxURY=#{@even_geometry.cropbox[3]}"\
         " -o #{@output_filename}"\
-        " -c \"[/CropBox [#{@geometry.newbox_s}] /PAGES pdfmark\" "\
-        " -f #{filename}",
+        " lib/barber/cropbox.ps",
         @options
       )
-    end
-
-    def write_new_cropbox_per_page(filename)
-      gscommand = <<-EOF
-        File dup (r) file runpdfbegin
-        1 1 pdfpagecount {
-          pdfgetpage
-          mark /CropBox [#{@geometry.newbox_s}] /PAGE pdfmark
-          pdfshowpage
-        } for
-      EOF
-
-      feedback(
-        "Writing PDF with new per-page CropBox to #{@output_filename}..."
-      )
-
-      Tempfile.open('gscommand') do |f|
-        f.puts(gscommand)
-        f.flush
-
-        system_command(
-          "gs"\
-          " -sDEVICE=pdfwrite"\
-          " -dBATCH -q"\
-          " -o #{@output_filename}"\
-          " -sFile=#{filename}"\
-          " #{f.path}",
-          @options
-        )
-      end
     end
   end
 end

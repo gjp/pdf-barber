@@ -1,0 +1,31 @@
+% Fetch page count, MediaBox, and CropBox from a PDF.
+
+() =
+File (r) file runpdfbegin
+(Pages: ) print pdfpagecount =print (,) print
+
+% Expects 4 values on the stack in reverse order
+/PrintBox {
+  4 -1 roll =print
+  ( ) print 
+  3 -1 roll =print
+  ( ) print
+  exch =print
+  ( ) print
+  =print
+} def 
+
+% Display the MediaBox and CropBox per page, if they exist.
+WhichPage pdfgetpage dup
+/MediaBox pget {
+  aload pop
+  ( MediaBox: ) print PrintBox (,) print
+} if
+/CropBox pget {
+  aload pop
+  ( CropBox: ) print PrintBox 
+} if
+
+() = flush
+  
+quit
