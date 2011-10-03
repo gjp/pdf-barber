@@ -11,12 +11,17 @@ module Barber
       @render_dimensions = []
     end
 
-    def calc_cropbox(render_geometry)
+    def calc_cropbox(render_geometry, fudge_factor = 0)
       # Use the render size, cropped size, offsets, and PDF box sizes to
       # calculate the new CropBox. This part is just arithmetic.
 
       render_width, render_height, offset_left,
       offset_top, crop_width, crop_height = *render_geometry
+
+      offset_left -= fudge_factor
+      offset_top -= fudge_factor
+      crop_width += fudge_factor * 2
+      crop_height += fudge_factor * 2
 
       scale_width = media_width.to_f / render_width.to_f
       scale_height = media_height.to_f / render_height.to_f

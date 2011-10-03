@@ -2,8 +2,9 @@ module Barber
   class Composer
     include Helpers
 
-    def initialize(geometry, params)
+    def initialize(geometry, images, params)
       @geometry = geometry
+      @images = images
       @params = params
       @pages = geometry.pages
       @tmpdir = params[:tmpdir]
@@ -39,21 +40,6 @@ module Barber
       )
     end
 
-    def image_names
-      case @pages
-      when 'all'
-        pageglob = /[\d]\.png$/
-      when 'odd'
-        pageglob = /[02468]\.png$/
-      when 'even'
-        pageglob = /[13579]\.png$/
-      end
-
-      Dir.new(@tmpdir).entries
-      .select{ |f| f.match pageglob }
-      .map{ |f| @tmpdir + '/' + f }.join(' ')
-    end
-
     def compose_images
       # Compose the PNG files generated earlier into a single image
       
@@ -63,7 +49,7 @@ module Barber
         " -flatten"\
         " -blur 4"\
         " -normalize"\
-        " #{image_names}"\
+        " #{@images}"\
         " #{@composed_image}",
         @params
       )

@@ -13,6 +13,16 @@ module Barber
       self
     end
 
+    def image_list_for(pages)
+      case pages
+      when 'all'  then re = /[\d]\.png$/
+      when 'odd'  then re = /[02468]\.png$/
+      when 'even' then re = /[13579]\.png$/
+      end
+
+      all_image_names.select{ |f| f.match re }.join(' ')
+    end
+ 
     private
 
     def render_pages
@@ -33,8 +43,13 @@ module Barber
         @params
       )
 
-      first_page_name = "page_%04d.png" % start_page
-      image_dimensions( "#{@params[:tmpdir]}/#{first_page_name}" )
+      image_dimensions( all_image_names.first )
+    end
+
+    def all_image_names
+       @image_names ||= Dir.new(@params[:tmpdir])
+       .entries.select{ |e| e.match /^page_[\d]{4}+\.png$/ }
+       .map{ |f| @params[:tmpdir] + '/' + f }
     end
 
     def image_dimensions(name)

@@ -41,7 +41,7 @@ module Barber
 
       geometries.each do |g|
         g.render_dimensions = renderer.dimensions
-        Composer.new( g, params ).compose
+        Composer.new( g, renderer.image_list_for(g.pages), params ).compose
         g.show_new_boxes
       end
 
