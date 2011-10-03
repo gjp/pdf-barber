@@ -31,6 +31,8 @@ module Barber
         "Writing PDF with new CropBox to #{@output_filename}..."
       )
 
+      ps_path = File.dirname(__FILE__)
+
       system_command(
         "gs"\
         " -q"\
@@ -46,7 +48,7 @@ module Barber
         " -dEvenBoxURX=#{@even_geometry.cropbox[2]}"\
         " -dEvenBoxURY=#{@even_geometry.cropbox[3]}"\
         " -o #{@output_filename}"\
-        " lib/barber/cropbox.ps",
+        " #{ps_path}/pdf_set_cropbox.ps",
         @options
       )
     end

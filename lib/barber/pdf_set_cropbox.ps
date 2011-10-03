@@ -1,3 +1,9 @@
+% PostScript using GhostScript PDF extensions
+%
+% Writes a new CropBox pdfmark to every page in a document
+% Expects eight parameters representing the CropBox corners
+% for both odd and even pages to be defined
+
 File (r) file runpdfbegin
 1 1 pdfpagecount {
   dup 2 mod /odd exch def

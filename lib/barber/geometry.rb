@@ -29,7 +29,8 @@ module Barber
       t = ((render_height - offset_top) * scale_height).round
 
       @cropbox = [l, b, r, t]
-      @pagesize = [ (crop_width * scale_width).round, (crop_height * scale_height).round ]
+      @pagesize = [ (crop_width * scale_width).round,
+                    (crop_height * scale_height).round ]
     end
 
     def cropbox_s

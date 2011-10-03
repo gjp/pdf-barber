@@ -1,10 +1,12 @@
-% Fetch page count, MediaBox, and CropBox from a PDF.
+% PostScript with GhostScript PDF extensions
+% Fetch page count, MediaBox, and CropBox from a PDF
+% Expects WhichPage to be defined.
 
 () =
 File (r) file runpdfbegin
 (Pages: ) print pdfpagecount =print (,) print
 
-% Expects 4 values on the stack in reverse order
+% Expects 4 numeric values on the stack in reverse order
 /PrintBox {
   4 -1 roll =print
   ( ) print 
@@ -27,5 +29,3 @@ WhichPage pdfgetpage dup
 } if
 
 () = flush
-  
-quit

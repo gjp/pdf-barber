@@ -18,7 +18,7 @@ It's up to you to visually scan the document beforehand to find a good range of 
 ## Sample run
 
 ```
-pdf-barber$ ruby bin/barber.rb --range 1-8  pdfs/bookie-basic-feature.pdf 
+pdf-barber$ ruby bin/barber.rb --range 1-8 pdfs/bookie-basic-feature.pdf 
 MediaBox: [0, 0, 504, 661] CropBox: []
 Rendering pages 1 to 8...
 New CropBox for all pages: [66, 74, 440, 615] Page Size: [374, 541]

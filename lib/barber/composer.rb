@@ -18,6 +18,8 @@ module Barber
       detect_blob
     end
 
+    private
+
     def detect_blob
       # Remove all non-floodfilled pixels and find what the new image size
       # and offset would be if we were to trim the edges
@@ -37,21 +39,19 @@ module Barber
       )
     end
 
-    private
-
     def image_names
       case @pages
       when 'all'
-        pageglob = /[\d].png$/
+        pageglob = /[\d]\.png$/
       when 'odd'
-        pageglob = /[02468].png$/
+        pageglob = /[02468]\.png$/
       when 'even'
-        pageglob = /[13579].png$/
+        pageglob = /[13579]\.png$/
       end
 
-      image_names = Dir.new(@tmpdir).entries
-                    .select{ |f| f.match pageglob }
-                    .map{ |f| @tmpdir + '/' + f }.join(' ')
+      Dir.new(@tmpdir).entries
+      .select{ |f| f.match pageglob }
+      .map{ |f| @tmpdir + '/' + f }.join(' ')
     end
 
     def compose_images

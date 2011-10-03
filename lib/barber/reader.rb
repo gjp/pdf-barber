@@ -10,13 +10,16 @@ module Barber
     end
 
     def read
+      ps_path = File.dirname(__FILE__)
+
       pdf_info = system_command(
         "gs"\
         " -q"\
         " -dNODISPLAY"\
+        " -dBATCH"\
         " -dWhichPage=#{@params[:range][0]}"\
         " -sFile=#{@params[:filename]}"\
-        " lib/barber/pdf_geometry.ps",
+        " #{ps_path}/pdf_get_boxes.ps",
         @params
       )
 
